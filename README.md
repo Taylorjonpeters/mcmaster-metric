@@ -18,8 +18,18 @@ Works in Chrome and other Chromium browsers (Edge, Brave, ...). To update, downl
 
 ## What it converts
 
-Lengths (`3/4"`, `1-1/2"`, `0.25"`, `12 in.`, `5 ft.`, `3" x 4"`), area, volume, weight, pressure (psi),
-temperature (°F, incl. ranges like `-20° to 180° F`), torque, speed, flow and power.
+| Kind | Examples |
+|---|---|
+| Length | `3/4"`, `1-1/2"`, `.0024"`, `12 in.`, `5 ft.`, `3" x 4"`, `2 mil`, `32 µin`, `2 miles` |
+| Ranges (one shared unit) | `1/4 to 1/2 in.` → `6.35 to 12.7 mm`, `100 to 200 psi` |
+| Area / volume | `sq. in.`, `in.²`, `sq. ft.`, `sq. yd.`, `cu. in.`, `cu. ft.`, `cu. yd.`, `gal.`, `qt.`, `pint`, `fl. oz.` |
+| Weight / density | `lb.`, `oz.`, `lb./ft.`, `lb./sq. ft.`, `lb./cu. ft.`, `lb./cu. in.`, `lb./gal.` |
+| Pressure | `psi`, `psig`, `ksi`, `lb./sq. in.`, `in. Hg`, `in. of water` |
+| Temperature | `°F`, `° F`, `ºF`, `deg. F`, `degrees Fahrenheit`, ranges like `-20° to 180° F` |
+| Torque | `ft.-lbs.`, `in.-lbs.`, `in.-oz.` |
+| Flow / speed / power | `gpm`, `gal./min.`, `gph`, `cfm`, `scfm`, `cu. ft./min.`, `cfh`, `ft./min.`, `in./sec.`, `ipm`, `mph`, `hp`, `BTU`, `BTU/hr` |
+| Force | `lbf` |
+
 Thread callouts such as `1/4"-20` and `#10-32` are left alone because they are names, not measurements.
 
 ## Settings (popup)

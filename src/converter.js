@@ -101,7 +101,10 @@
     let s = v.toFixed(d);
     if (s.indexOf('.') !== -1) s = s.replace(/\.?0+$/, '');
     if (s === '-0' || s === '') s = '0';
-    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const dot = s.indexOf('.');
+    const int = dot === -1 ? s : s.slice(0, dot);
+    const frac = dot === -1 ? '' : s.slice(dot);
+    return int.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + frac; // separators in the integer part only
   }
 
   // ------------------------------------------------------------ unit tables
@@ -113,11 +116,28 @@
   const area = (cm2) => (Math.abs(cm2) >= 10000 ? [cm2 / 10000, 'm²'] : [cm2, 'cm²']);
   const volume = (ml) =>
     Math.abs(ml) >= 1e6 ? [ml / 1e6, 'm³'] : Math.abs(ml) >= 1000 ? [ml / 1000, 'L'] : [ml, 'mL'];
+  const watts = (w) => (Math.abs(w) >= 1000 ? [w / 1000, 'kW'] : [w, 'W']);
   const scale = (k, unit) => (v) => [v * k, unit];
 
   // Order matters (first match wins in the alternation): longer / more
   // specific spellings must come before their prefixes.
   const UNITS = [
+    // compound / specific units first: the alternation takes the first one that matches
+    { id: 'lbsqin', cat: 'pressure', src: 'lbs?\\.?\\s*\\/\\s*sq\\.?\\s*in\\.?', conv: (v) => pressure(v * 6.894757293) },
+    { id: 'lbsqft', cat: 'mass', src: 'lbs?\\.?\\s*\\/\\s*sq\\.?\\s*ft\\.?', conv: scale(4.88242764, 'kg/m²') },
+    { id: 'lbcuft', cat: 'mass', src: 'lbs?\\.?\\s*\\/\\s*cu\\.?\\s*ft\\.?', conv: scale(16.01846337, 'kg/m³') },
+    { id: 'lbcuin', cat: 'mass', src: 'lbs?\\.?\\s*\\/\\s*cu\\.?\\s*in\\.?', conv: scale(27.6799047, 'g/cm³') },
+    { id: 'lbgal', cat: 'mass', src: 'lbs?\\.?\\s*\\/\\s*gal\\.?', conv: scale(0.119826427, 'kg/L') },
+    { id: 'lbft', cat: 'mass', src: 'lbs?\\.?\\s*\\/\\s*ft\\.?', conv: scale(1.48816394, 'kg/m') },
+    { id: 'inhg', cat: 'pressure', src: 'in(?:ch(?:es)?)?\\.?\\s*(?:of\\s+)?Hg', conv: scale(3.386389, 'kPa') },
+    { id: 'inh2o', cat: 'pressure', src: 'in(?:ch(?:es)?)?\\.?\\s*(?:of\\s+)?(?:water|H2O|H₂O)', conv: scale(0.249089, 'kPa') },
+    { id: 'btuhr', cat: 'other', src: 'btu\\.?\\s*\\/?\\s*h(?:r|our)?\\.?', conv: (v) => watts(v * 0.29307107) },
+    { id: 'btu', cat: 'other', src: 'btu', conv: scale(1.055056, 'kJ') },
+    { id: 'inoz', cat: 'other', src: 'in\\.?[\\s-]*oz\\.?', conv: scale(7.06155, 'N·mm') },
+    { id: 'ips', cat: 'other', src: '(?:in\\.?\\s*\\/\\s*(?:sec|s)\\.?|ips)', conv: scale(25.4, 'mm/s') },
+    { id: 'ipm', cat: 'other', src: '(?:in\\.?\\s*\\/\\s*min\\.?|ipm)', conv: scale(25.4, 'mm/min') },
+    { id: 'gph', cat: 'other', src: '(?:gph|gal\\.?\\s*\\/\\s*h(?:r|our)?\\.?)', conv: scale(3.785411784, 'L/h') },
+    { id: 'cfh', cat: 'other', src: '(?:s?cfh|cu\\.?\\s*ft\\.?\\s*\\/\\s*h(?:r|our)?\\.?)', conv: scale(0.0283168466, 'm³/h') },
     // torque
     { id: 'ftlb', cat: 'other', src: 'ft\\.?[\\s-]*lbs?\\.?', conv: scale(1.3558179483, 'N·m') },
     { id: 'inlb', cat: 'other', src: 'in(?:ch(?:es)?)?\\.?[\\s-]*lbs?\\.?', conv: scale(0.1129848290, 'N·m') },
@@ -125,18 +145,22 @@
     { id: 'fpm', cat: 'other', src: '(?:ft\\.?\\/min\\.?|fpm)', conv: scale(0.3048, 'm/min') },
     { id: 'fps', cat: 'other', src: 'ft\\.?\\/(?:sec|s)\\.?', conv: scale(0.3048, 'm/s') },
     { id: 'mph', cat: 'other', src: 'mph', conv: scale(1.609344, 'km/h') },
-    { id: 'gpm', cat: 'other', src: 'gpm', conv: scale(3.785411784, 'L/min') },
-    { id: 'cfm', cat: 'other', src: 'cfm', conv: scale(1.699010796, 'm³/h') },
+    { id: 'gpm', cat: 'other', src: '(?:gpm|gal\\.?\\s*\\/\\s*min\\.?)', conv: scale(3.785411784, 'L/min') },
+    { id: 'cfm', cat: 'other', src: '(?:s?cfm|cu\\.?\\s*ft\\.?\\s*\\/\\s*min\\.?)', conv: scale(1.699010796, 'm³/h') },
     { id: 'hp', cat: 'other', src: 'hp', conv: scale(0.7456998716, 'kW') },
     { id: 'lbf', cat: 'other', src: 'lbf', conv: scale(4.4482216153, 'N') },
     // pressure
     { id: 'psi', cat: 'pressure', src: 'psi[ga]?', conv: (v) => pressure(v * 6.894757293) },
+    { id: 'ksi', cat: 'pressure', src: 'ksi', conv: (v) => pressure(v * 6894.757293) },
     // area
-    { id: 'sqin', cat: 'area', src: '(?:sq\\.?\\s*in(?:ch(?:es)?)?\\.?|in²)', conv: (v) => area(v * 6.4516) },
-    { id: 'sqft', cat: 'area', src: '(?:sq\\.?\\s*ft\\.?|ft²)', conv: (v) => area(v * 929.0304) },
+    { id: 'sqin', cat: 'area', src: '(?:sq\\.?\\s*in(?:ch(?:es)?)?\\.?|in\\.?²)', conv: (v) => area(v * 6.4516) },
+    { id: 'sqft', cat: 'area', src: '(?:sq\\.?\\s*ft\\.?|ft\\.?²)', conv: (v) => area(v * 929.0304) },
+    { id: 'sqyd', cat: 'area', src: '(?:sq\\.?\\s*yd\\.?|yd\\.?²)', conv: (v) => area(v * 8361.2736) },
     // volume
     { id: 'cuin', cat: 'volume', src: '(?:cu\\.?\\s*in\\.?|in³)', conv: (v) => volume(v * 16.387064) },
-    { id: 'cuft', cat: 'volume', src: '(?:cu\\.?\\s*ft\\.?|ft³)', conv: (v) => volume(v * 28316.846592) },
+    { id: 'cuft', cat: 'volume', src: '(?:cu\\.?\\s*ft\\.?|ft\\.?³)', conv: (v) => volume(v * 28316.846592) },
+    { id: 'cuyd', cat: 'volume', src: '(?:cu\\.?\\s*yd\\.?|yd\\.?³)', conv: (v) => volume(v * 764554.857984) },
+    { id: 'pint', cat: 'volume', src: 'pints?', conv: (v) => volume(v * 473.176473) },
     { id: 'floz', cat: 'volume', src: 'fl\\.?\\s*oz\\.?', conv: (v) => volume(v * 29.5735295625) },
     { id: 'gal', cat: 'volume', src: 'gal(?:lons?)?\\.?', conv: (v) => volume(v * 3785.411784) },
     { id: 'qt', cat: 'volume', src: '(?:qt|quarts?)\\.?', conv: (v) => volume(v * 946.352946) },
@@ -146,7 +170,10 @@
     // length
     { id: 'in', cat: 'length', src: 'in(?:ch(?:es)?)?\\.?', conv: (v) => length(v * IN) },
     { id: 'ft', cat: 'length', src: '(?:ft|feet|foot)\\.?', conv: (v) => length(v * 304.8) },
-    { id: 'yd', cat: 'length', src: '(?:yds?|yards?)\\.?', conv: (v) => length(v * 914.4) }
+    { id: 'yd', cat: 'length', src: '(?:yds?|yards?)\\.?', conv: (v) => length(v * 914.4) },
+    { id: 'mil', cat: 'length', src: 'mils?(?!-)', conv: (v) => length(v * 0.0254) }, // thousandths of an inch
+    { id: 'uin', cat: 'length', src: '(?:[µμ]in\\.?|microinch(?:es)?)', conv: scale(0.0254, 'µm') },
+    { id: 'mile', cat: 'length', src: 'miles?', conv: (v) => [v * 1.609344, 'km'] }
   ];
   UNITS.forEach((u) => { u.full = new RegExp('^(?:' + u.src + ')$', 'i'); });
   const unitDef = (text) => UNITS.find((u) => u.full.test(text.trim()));
@@ -167,11 +194,18 @@
     'gi'
   );
   const TNUM = '-?\\d+(?:\\.\\d+)?';
+  const DEG = '(?:°|º|deg(?:rees?)?\\.?)';
+  const F_UNIT = '\\s*' + DEG + '\\s*F(?:ahrenheit)?(?![A-Za-z])';
   const RE_TEMP_RANGE = new RegExp(
-    '(?<![\\w.])(' + TNUM + ')\\s*°?\\s*(?:to|–|—|-)\\s*(' + TNUM + ')\\s*°\\s*F\\b',
+    '(?<![\\w.])(' + TNUM + ')\\s*' + DEG + '?\\s*(?:to|–|—|-)\\s*(' + TNUM + ')' + F_UNIT,
     'gi'
   );
-  const RE_TEMP = new RegExp('(?<![\\w.])(' + TNUM + ')\\s*°\\s*F\\b', 'gi');
+  const RE_TEMP = new RegExp('(?<![\\w.])(' + TNUM + ')' + F_UNIT, 'gi');
+  // "1/4 to 1/2 in."  (unit only on the second number; works for every unit)
+  const RE_RANGE = new RegExp(
+    LB + '(' + NUM + ')\\s*(?:to|–|—)\\s*(' + NUM + ')\\s*' + UNIT_ALT + '(?!\\s+stock\\b)',
+    'gi'
+  );
   // "3 x 4 x 5 in."  (unit only on the last number; word units only)
   const RE_DIMS = new RegExp(
     LB + '(' + NUM + '(?:\\s*[x×]\\s*' + NUM + ')+)\\s*(in(?:ch(?:es)?)?\\.?|ft\\.?)(?![A-Za-z0-9²³])',
@@ -181,7 +215,7 @@
 
   // Text we've already appended in "both" mode, e.g. '3/4" (19.05 mm)'.
   const RE_ALREADY =
-    /^\s*\(\s*-?[\d,.]+[^()]{0,30}?\s*(?:mm|cm|m|kg|g|mL|L|kPa|MPa|°\s?C|N|kW|N·m|m³\/h|L\/min|m\/s|m\/min|km\/h|cm²|m²)\s*\)/;
+    /^\s*\(\s*-?[\d,.]+[^()]{0,30}?\s*(?:°\s?C|(?:mm|cm|µm|km|kg|mL|kPa|MPa|kW|kJ|N|W|g|L|m)[²³]?(?:[·\/](?:m|mm|h|s|min|L|cm|kg)[²³]?)?)\s*\)/;
 
   const c2 = (f) => (f - 32) * 5 / 9;
   const tempStr = (f) => fmt(Math.round(c2(f) * 10) / 10);
@@ -196,16 +230,32 @@
     }
   }
 
+  function resolveDef(unitText) {
+    if (new RegExp('^' + QUOTE_IN + '$').test(unitText)) return unitDef('in');
+    if (/^['′]$/.test(unitText)) return unitDef('ft');
+    return unitDef(unitText);
+  }
+
   function convertQuantity(numText, unitText) {
     const value = parseNum(numText);
     if (!isFinite(value)) return null;
-    let def;
-    if (new RegExp('^' + QUOTE_IN + '$').test(unitText)) def = unitDef('in');
-    else if (/^['′]$/.test(unitText)) def = unitDef('ft');
-    else def = unitDef(unitText);
+    const def = resolveDef(unitText);
     if (!def) return null;
     const [v, u] = def.conv(value);
     return { cat: def.cat, metric: fmt(v) + ' ' + u };
+  }
+
+  function convertRange(aText, bText, unitText) {
+    const a = parseNum(aText), b = parseNum(bText);
+    if (!isFinite(a) || !isFinite(b)) return null;
+    const def = resolveDef(unitText);
+    if (!def) return null;
+    const [va, ua] = def.conv(a);
+    const [vb, ub] = def.conv(b);
+    const metric = ua === ub
+      ? fmt(va) + ' to ' + fmt(vb) + ' ' + ua
+      : fmt(va) + ' ' + ua + ' to ' + fmt(vb) + ' ' + ub;
+    return { cat: def.cat, metric };
   }
 
   /**
@@ -243,7 +293,9 @@
       return { cat: 'length', metric: vals.join(' x ') + ' ' + unit };
     }, cand);
 
-    collect(text, RE_SIMPLE, 4, (m) => {
+    collect(text, RE_RANGE, 4, (m) => convertRange(m[1], m[2], m[3]) || undefined, cand);
+
+    collect(text, RE_SIMPLE, 5, (m) => {
       const r = convertQuantity(m[1], m[2]);
       return r || undefined;
     }, cand);

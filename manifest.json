@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "McMaster-Carr Metric Converter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shows McMaster-Carr dimensions, weights, pressures and temperatures in metric units.",
   "permissions": ["storage"],
   "action": {
