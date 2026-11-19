@@ -16,6 +16,17 @@ test('raw materials preset matches stock pages, not fasteners', () => {
   assert.equal(pageInScope(raw, { title: 'McMaster-Carr' }), false);
 });
 
+test('material-only titles count as raw stock, unless the page is another section', () => {
+  assert.equal(pageInScope(raw, { title: 'aluminum | McMaster-Carr', path: '/products/aluminum/' }), true);
+  assert.equal(pageInScope(raw, { title: 'brass | McMaster-Carr' }), true);
+  assert.equal(pageInScope(raw, { title: 'Black-Oxide Alloy Steel Socket Head Screw' }), false);
+  assert.equal(pageInScope(raw, { title: 'Stainless Steel Hex Nuts' }), false);
+  assert.equal(pageInScope(raw, { title: 'Steel Pipe Fittings' }), false);
+  // once fasteners are selected, those pages are in scope on their own keywords
+  const both = { mode: 'selected', presets: { raw: true, fasteners: true, pipe: false }, custom: '' };
+  assert.equal(pageInScope(both, { title: 'Black-Oxide Alloy Steel Socket Head Screw' }), true);
+});
+
 test('keywords match whole words only', () => {
   assert.equal(pageInScope(raw, { title: 'Barbed Hose Fitting' }), false);
   assert.equal(pageInScope(raw, { title: 'Bars' }), true);
