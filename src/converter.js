@@ -35,7 +35,14 @@
     raw: {
       label: 'Raw materials & stock',
       keywords: ['stock', 'bar', 'rod', 'sheet', 'plate', 'strip', 'foil', 'shim', 'tube', 'tubing',
-        'beam', 'extrusion', 'extruded', 'billet', 'slab', 'film', 'mesh']
+        'beam', 'extrusion', 'extruded', 'billet', 'slab', 'film', 'mesh'],
+      // Material names: McMaster titles many stock pages just "aluminum" or "brass".
+      // Only count them when the page doesn't also look like a section that isn't selected
+      // (e.g. "Alloy Steel Socket Head Screw" must not match just because of "steel").
+      weak: ['aluminum', 'brass', 'copper', 'bronze', 'steel', 'stainless', 'titanium', 'nickel', 'zinc',
+        'magnesium', 'iron', 'nylon', 'acetal', 'delrin', 'uhmw', 'hdpe', 'acrylic', 'polycarbonate',
+        'ptfe', 'teflon', 'peek', 'plastic', 'rubber', 'neoprene', 'silicone', 'foam', 'felt', 'wood',
+        'plywood', 'lumber', 'graphite', 'fiberglass', 'glass', 'cork', 'carbon fiber']
     },
     fasteners: {
       label: 'Fasteners',
@@ -58,13 +65,18 @@
   /** info = { path, title, h1, crumbs }. 'all' mode is always in scope. */
   function pageInScope(scope, info) {
     if (!scope || scope.mode !== 'selected') return true;
-    const words = [];
-    for (const k of Object.keys(PRESETS)) if (scope.presets && scope.presets[k]) words.push(...PRESETS[k].keywords);
-    words.push(...String(scope.custom || '').split(/[,\n]/));
-    const re = keywordRegex(words);
-    if (!re) return false;
+    const keys = Object.keys(PRESETS);
+    const sel = keys.filter((k) => scope.presets && scope.presets[k]);
+    const strong = sel.flatMap((k) => PRESETS[k].keywords).concat(String(scope.custom || '').split(/[,\n]/));
+    const weak = sel.flatMap((k) => PRESETS[k].weak || []);
+    const other = keys.filter((k) => !sel.includes(k)).flatMap((k) => PRESETS[k].keywords);
     const hay = [info.title, info.h1, info.crumbs, String(info.path || '').replace(/[-_/]+/g, ' ')].join(' | ');
-    return re.test(hay);
+
+    const reStrong = keywordRegex(strong);
+    if (reStrong && reStrong.test(hay)) return true;
+    const reWeak = keywordRegex(weak);
+    const reOther = keywordRegex(other);
+    return !!(reWeak && reWeak.test(hay) && !(reOther && reOther.test(hay)));
   }
 
   // ---------------------------------------------------------------- numbers
