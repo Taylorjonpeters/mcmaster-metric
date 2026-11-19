@@ -3,7 +3,7 @@
 # McMaster-Carr Metric Converter
 
 A Vibe-Coded Chrome extension that shows imperial values on mcmaster.com in metric.
-This is because I am a Canadian Living in the US, and most of the raw stock options on MMC have only imperial measurements
+This is because I am a Canadian Living in the US, and most of the raw stock options on McMC have only imperial measurements
 and I have absolutely NO interest in figuring out ow thick .0024" is while buying aluminum sheet.
 
 `3/4"` → `19.05 mm`  ·  `170,000 psi` → `1,172 MPa`  ·  `-20° to 180° F` → `-28.9° to 82.2° C`
