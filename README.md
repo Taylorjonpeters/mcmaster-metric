@@ -1,3 +1,5 @@
+<p align="center"><img src="icons/192x192.gif" alt="McMaster-Carr Metric Converter" width="192"></p>
+
 # McMaster-Carr Metric Converter
 
 A Vibe-Coded Chrome extension that shows imperial values on mcmaster.com in metric.
