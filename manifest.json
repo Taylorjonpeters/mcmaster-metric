@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "McMaster-Carr Metric Converter",
+  "version": "0.1.0",
+  "description": "Shows McMaster-Carr dimensions, weights, pressures and temperatures in metric units.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Metric converter",
+    "default_popup": "popup/popup.html",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.mcmaster.com/*", "https://mcmaster.com/*"],
+      "js": ["src/converter.js", "src/dom-engine.js", "src/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

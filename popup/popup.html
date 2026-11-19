@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Metric converter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Metric converter</h1>
+    <label class="switch" title="Enable or disable">
+      <input type="checkbox" id="enabled">
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <fieldset id="scope">
+    <legend>Where</legend>
+    <label><input type="radio" name="scope" value="all"> Everywhere on McMaster</label>
+    <label><input type="radio" name="scope" value="selected"> Only selected sections</label>
+    <div id="presets">
+      <label><input type="checkbox" data-preset="raw"> Raw materials &amp; stock <small>bar, sheet, tube…</small></label>
+      <label><input type="checkbox" data-preset="fasteners"> Fasteners <small>screw, bolt, nut…</small></label>
+      <label><input type="checkbox" data-preset="pipe"> Pipe, tubing &amp; fittings</label>
+      <label class="stack">Extra keywords
+        <input type="text" id="custom" placeholder="e.g. gasket, o-ring, spring" spellcheck="false">
+      </label>
+      <p class="note">McMaster doesn't expose its catalog section on the page, so this matches keywords in the page title, heading, breadcrumb and URL.</p>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Display</legend>
+    <label><input type="radio" name="mode" value="replace"> Metric only <small>19.05 mm</small></label>
+    <label><input type="radio" name="mode" value="both"> Both <small>3/4" (19.05 mm)</small></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Convert</legend>
+    <label><input type="checkbox" data-cat="length"> Lengths <small>in, ft, yd</small></label>
+    <label><input type="checkbox" data-cat="area"> Area <small>sq in, sq ft</small></label>
+    <label><input type="checkbox" data-cat="volume"> Volume <small>gal, qt, cu in</small></label>
+    <label><input type="checkbox" data-cat="mass"> Weight <small>lb, oz</small></label>
+    <label><input type="checkbox" data-cat="pressure"> Pressure <small>psi</small></label>
+    <label><input type="checkbox" data-cat="temperature"> Temperature <small>°F</small></label>
+    <label><input type="checkbox" data-cat="other"> Other <small>torque, speed, flow, power</small></label>
+  </fieldset>
+
+  <p class="note">Thread sizes like 1/4"-20 are left alone. Changes apply instantly to open McMaster tabs.</p>
+  <script src="../src/converter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

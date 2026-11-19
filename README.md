@@ -1,0 +1,66 @@
+# McMaster-Carr Metric Converter
+
+A Chrome extension (Manifest V3) that shows imperial values on mcmaster.com in metric.
+
+`3/4"` → `19.05 mm`  ·  `170,000 psi` → `1,172 MPa`  ·  `-20° to 180° F` → `-28.9° to 82.2° C`
+
+## Install (no build needed)
+
+1. Download the latest `mcmaster-metric-vX.Y.Z.zip` from the [Releases page](../../releases/latest).
+2. Unzip it somewhere permanent (Chrome reads the files from that folder, so don't delete it).
+3. Open `chrome://extensions` and turn on **Developer mode** (top right).
+4. Click **Load unpacked** and select the unzipped folder (the one containing `manifest.json`).
+5. Pin the extension and open the popup to choose what to convert.
+
+Works in Chrome and other Chromium browsers (Edge, Brave, ...). To update, download the new zip and replace the folder's contents, then click the reload icon on `chrome://extensions`.
+
+## What it converts
+
+Lengths (`3/4"`, `1-1/2"`, `0.25"`, `12 in.`, `5 ft.`, `3" x 4"`), area, volume, weight, pressure (psi),
+temperature (°F, incl. ranges like `-20° to 180° F`), torque, speed, flow and power.
+Thread callouts such as `1/4"-20` and `#10-32` are left alone because they are names, not measurements.
+
+## Settings (popup)
+
+- **Where** – defaults to *Raw materials & stock* pages only. Switch to everywhere, or pick *Fasteners*,
+  *Pipe, tubing & fittings* and/or your own keywords. McMaster doesn't expose its catalog section on the
+  page, so this is keyword matching on the page title, heading, breadcrumb and URL.
+- **Display** – metric only (`19.05 mm`) or both (`3/4" (19.05 mm)`).
+- **Convert** – turn individual unit categories on or off.
+
+Settings sync through your Chrome profile (`chrome.storage.sync`). The extension has no servers, no
+analytics, and only runs on `mcmaster.com`. The only permission it requests is `storage`.
+
+## Disclaimer
+
+Not affiliated with, endorsed by, or sponsored by McMaster-Carr Supply Company. "McMaster-Carr" is a
+trademark of its owner. Conversions are rounded for display and are applied to page text only; the site
+still orders, filters and prices in its own units. **Always verify critical dimensions against the
+original value before ordering or machining.**
+
+## Development
+
+```
+npm install
+npm test          # unit + jsdom tests
+npm run build     # writes dist/mcmaster-metric-v<version>.zip
+npm run icons     # regenerates icons/
+```
+
+- `src/converter.js` – pure text conversion and page-scope matching
+- `src/dom-engine.js` – DOM walking/restoring (matches across sibling text nodes, because McMaster renders `3/4"` as `<span>3/4</span>"`)
+- `src/content.js` – settings and single-page-app navigation wiring
+
+### Releasing
+
+Bump `version` in `manifest.json` and `package.json`, commit, then push a matching tag:
+
+```
+git tag v0.1.1 && git push origin v0.1.1
+```
+
+GitHub Actions runs the tests, builds the zip and attaches it to a new Release.
+
+## License
+
+[MIT](LICENSE)
