@@ -58,7 +58,6 @@ original value before ordering or machining. DO NOT build something important wi
 npm install
 npm test          # unit + jsdom tests
 npm run build     # writes dist/mcmaster-metric-v<version>.zip
-npm run icons     # regenerates icons/
 ```
 
 - `src/converter.js` – pure text conversion and page-scope matching

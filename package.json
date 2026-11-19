@@ -6,7 +6,6 @@
   "description": "Chrome extension: show McMaster-Carr imperial values in metric",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
-    "icons": "node tools/make-icons.js",
     "build": "node tools/build.js"
   },
   "devDependencies": {
