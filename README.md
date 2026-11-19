@@ -48,7 +48,7 @@ analytics, and only runs on `mcmaster.com`. The only permission it requests is `
 Not affiliated with, endorsed by, or sponsored by McMaster-Carr Supply Company. "McMaster-Carr" is a
 trademark of its owner. Conversions are rounded for display and are applied to page text only; the site
 still orders, filters and prices in its own units. **Always verify critical dimensions against the
-original value before ordering or machining.**
+original value before ordering or machining. DO NOT build something important without checking I know I will but I dont want you to**
 
 ## Development
 
